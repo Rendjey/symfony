@@ -4,7 +4,6 @@ namespace App\Command;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
-use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,17 +19,17 @@ class TestCommand extends Command
             ->setHelp('This Test Symfony Console command.');
     }
 
-    /**
-     * @throws GuzzleException
-     */
-
-    protected function authorization($base_uri, $phone)
+    protected function fclient($base_uri): Client
     {
-        $client = new Client([
+        return new Client([
             'base_uri' => $base_uri,
             'cookies' => true,
             'verify' => false
         ]);
+    }
+
+    protected function authorization($client, $phone)
+    {
         $jar = new CookieJar;
 
         $headers = [
@@ -67,15 +66,17 @@ class TestCommand extends Command
 //        echo("Status Code: ".$spider_request_code->getStatusCode())."\n";
     }
 
-    /**
-     * @throws GuzzleException
-     */
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $base_uri = 'https://shop.vsk.ru/';
         $phone = '79951018204';
 
-        $this->authorization($base_uri, $phone);
+//        $client = $this->fclient($base_uri);
+//        $this->authorization($client, $phone);
+
+//        $cookie_json = file_get_contents('../JSON/cookie.json/');
+//        var_dump($cookie_json);
 
         return 0;
     }
