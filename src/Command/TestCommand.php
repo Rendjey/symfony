@@ -41,10 +41,6 @@ class TestCommand extends Command
             'phone' => $phone
         ];
 
-//        $form_params_token = [
-//            'phone' => '6135eac28c6c5'
-//        ];
-
         $respond = $client->request('GET', 'auth', [
             'cookies' => $jar
         ]);
@@ -55,15 +51,8 @@ class TestCommand extends Command
             'form_params' => $form_params_number
         ]);
 
-//        $spider_request_code = $client->request('POST', 'ajax/auth/checkPostSms/', [
-//            'cookies' => $jar,
-//            'headers' => $headers,
-//            'form_params' => $form_params_token
-//        ]);
-
         echo("Status Code: ".$respond->getStatusCode())."\n";
         echo("Status Code: ".$spider_request->getStatusCode())."\n";
-//        echo("Status Code: ".$spider_request_code->getStatusCode())."\n";
     }
 
 
@@ -72,11 +61,8 @@ class TestCommand extends Command
         $base_uri = 'https://shop.vsk.ru/';
         $phone = '79951018204';
 
-//        $client = $this->fclient($base_uri);
-//        $this->authorization($client, $phone);
-
-//        $cookie_json = file_get_contents('../JSON/cookie.json/');
-//        var_dump($cookie_json);
+        $client = $this->fclient($base_uri);
+        $this->authorization($client, $phone);
 
         return 0;
     }
