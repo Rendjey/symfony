@@ -4,6 +4,7 @@ namespace App\Command;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -19,17 +20,19 @@ class TestCommand extends Command
             ->setHelp('This Test Symfony Console command.');
     }
 
-    protected function fclient($base_uri): Client
+    /**
+     * @throws GuzzleException
+     */
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        return new Client([
+        $base_uri = 'https://office.vsk.ru/';
+        $phone = '79999999999';
+
+        $client = new Client([
             'base_uri' => $base_uri,
             'cookies' => true,
             'verify' => false
         ]);
-    }
-
-    protected function authorization($client, $phone)
-    {
         $jar = new CookieJar;
 
         $headers = [
@@ -41,29 +44,36 @@ class TestCommand extends Command
             'phone' => $phone
         ];
 
-        $respond = $client->request('GET', 'auth', [
+        $cookieMiner = $client->request('GET', '', [
             'cookies' => $jar
         ]);
 
-        $spider_request = $client->request('POST', 'ajax/auth/postSms', [
+        $postSms = $client->request('POST', 'ajax/auth/postSms/', [
             'cookies' => $jar,
-            'headers' => $headers,
+//            'headers' => $headers,
             'form_params' => $form_params_number
         ]);
 
-        echo("Status Code: ".$respond->getStatusCode())."\n";
-        echo("Status Code: ".$spider_request->getStatusCode())."\n";
-    }
+        $postSmsBodyString = $postSms->getBody();
+        $token = json_decode($postSmsBodyString, true);
+
+        $form_params_token = [
+            'token' => $token
+        ];
+
+        $postCode = $client->request('POST', 'ajax/auth/postCode/', [
+            'cookies' => $jar,
+            'form_params' => $form_params_token
+        ]);
 
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $base_uri = 'https://shop.vsk.ru/';
-        $phone = '79951018204';
+        echo("Cookie status code: ".$cookieMiner->getStatusCode())."\n";
+        echo("Cookie status code: ".$postSms->getStatusCode())."\n";
+        echo("Cookie status code: ".$postCode->getStatusCode())."\n";
 
-        $client = $this->fclient($base_uri);
-        $this->authorization($client, $phone);
 
+//        $file = './src/Command/data.json';
+//        file_put_contents($file, json_encode($jar));
         return 0;
     }
 
